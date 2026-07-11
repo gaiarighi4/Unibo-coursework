@@ -1,0 +1,175 @@
+" 12. Metodo del gradiente "
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def next_step(x,grad): # backtracking procedure for the choice of the steplength
+  alpha=1.1
+  rho = 0.5
+  c1 = 0.25 
+  p=-grad
+  j=0
+  jmax=10
+  while ((f(x+alpha*p) > f(x)+c1*alpha*np.dot(grad,p)) and j<jmax ):
+    alpha= rho*alpha
+    j+=1
+  if (j>jmax):
+    return -1
+  else:
+    #print('alpha=',alpha)
+    return alpha
+
+# tol = tau (criteri arresto)
+def minimize(f,grad_f,x0,step,maxit,tol,xTrue,fixed=True): # funzione che implementa il metodo del gradiente
+  #declare x_k and gradient_k vectors
+  # x_list only for logging
+  x_list=np.zeros((2,maxit+1))
+
+  norm_grad_list=np.zeros(maxit+1)
+  function_eval_list=np.zeros(maxit+1)
+  error_list=np.zeros(maxit+1)
+  
+  #initialize first values
+  x_last = x0
+
+  x_list[:,0] = x_last
+  
+  k=0
+
+  function_eval_list[k]=f(x0)
+  error_list[k]=np.linalg.norm(x_last-xTrue)
+  norm_grad_list[k]=np.linalg.norm(grad_f(x0))
+
+  while (np.linalg.norm(grad_f(x_last))>tol and k < maxit ):
+    k=k+1
+    grad = grad_f(x_last)#direction is given by gradient of the last iteration
+    
+    
+    if not fixed:
+        step = next_step(x_last, grad)
+    
+    if(step==-1):
+      print('non convergente')
+      return (k) #no convergence
+
+    x_last=x_last-step*grad
+    
+    x_list[:,k] = x_last
+
+    function_eval_list[k]=f(x_last)
+    error_list[k]=np.linalg.norm(x_last-xTrue)
+    norm_grad_list[k]=np.linalg.norm(grad_f(x_last))
+
+  function_eval_list = function_eval_list[:k+1]
+  error_list = error_list[:k+1]
+  norm_grad_list = norm_grad_list[:k+1]
+  
+  print("Iterazioni totali = ",k)
+  print('Last guess: x = (%f,%f)'%(x_list[0,k],x_list[1,k]))
+ 
+  return (x_last,norm_grad_list, function_eval_list, error_list, x_list, k)
+
+
+
+
+def f(vec):
+    x, y = vec
+    fout = 100*(y-x**2)**2+(1-x)**2
+    return fout
+
+def grad_f(vec):
+    x, y = vec
+    dfdx = 200*(y-x**2)*(-2*x)-2*(1-x)
+    dfdy = 200*(y-x**2)
+    return np.array([dfdx,dfdy])
+    
+x = np.linspace(-2, 2, 50)
+y = np.linspace(-1, 3, 100)
+X, Y = np.meshgrid(x, y)
+vec = np.array([X,Y])
+Z=f(vec)
+
+
+fig = plt.figure(figsize=(15, 8))
+
+ax = plt.axes(projection='3d')
+ax.set_title('$f(x)=(1-x)^2+100*(y-x^2)^2$')
+#ax.view_init(elev=50., azim=30)
+s = ax.plot_surface(X, Y, Z, cmap='viridis')
+fig.colorbar(s)
+plt.show()
+
+fig = plt.figure(figsize=(8, 5))
+contours = plt.contour(X, Y, Z, levels=1000)
+plt.title('Contour plot $f(x)=(1-x)^2+100*(y-x^2)^2$')
+fig.colorbar(contours)
+
+
+step = 0.001
+maxitS= 1000
+tol=1.e-5
+x0 = np.array([-0.5, 1]) 
+xTrue = np.array([1, 1])
+
+print("\nMetodo gradiente passo fisso:")
+
+(x_last,norm_grad_listf, function_eval_listf, error_listf, xlist, k)= minimize(f,grad_f,x0,step,maxitS,tol,xTrue,fixed=True)
+print("Norma errore:", np.linalg.norm(x_last-xTrue, 2))
+plt.plot(xlist[0, :k], xlist[1, :k],'*-')
+
+
+print("\nMetodo gradiente backtracking:")
+
+
+(x_last,norm_grad_list, function_eval_list, error_list, xlist, k)= minimize(f,grad_f,x0,step,maxitS,tol,xTrue,fixed=False)
+print("Norma errore:", np.linalg.norm(x_last-xTrue, 2))
+plt.plot(xlist[0, :k], xlist[1, :k],'*-')
+plt.legend(['fixed', 'backtracking'])
+
+plt.show()
+
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+ax1.semilogy(norm_grad_listf)
+ax1.semilogy(norm_grad_list)
+ax1.set_title('$\|\\nabla f(x_k)\|$')
+ax2.semilogy(function_eval_listf)
+ax2.semilogy(function_eval_list)
+ax2.set_title('$f(x_k)$')
+ax3.semilogy(error_listf)
+ax3.semilogy(error_list)
+ax3.set_title('$\|x_k-x^*\|$')
+fig.legend(['fixed', 'backtracking'], loc='lower center', ncol=4)
+fig.tight_layout()
+plt.show()
+
+
+
+# Metodo del gradiente con passo fisso e con backtracking per minimizzare una 
+# funzione di due variabili. 
+
+# 1. Funzione Obiettivo e Gradiente:
+# La funzione obiettivo e il suo gradiente sono definiti.
+# La funzione obiettivo è visualizzata tramite un grafico 3D e un grafico di contorno.
+
+# 2. Metodo del Gradiente con Passo Fisso e Backtracking:
+# - minimize implementa il metodo del gradiente con la possibilità di scegliere
+#   tra un passo fisso e l'utilizzo del backtracking.
+
+# - next_step implementa la procedura di backtracking per la scelta della
+#   lunghezza del passo.
+
+# - Viene fornito un criterio di arresto basato sulla norma del gradiente o sul
+#   numero massimo di iterazioni.
+
+# - Vengono memorizzati e visualizzati i risultati come la norma del gradiente, il
+# valore della funzione, l'errore rispetto alla soluzione vera e la traiettoria della
+# ricerca durante le iterazioni.
+
+# 3. Esecuzione del Metodo del Gradiente:
+# - Il metodo del gradiente è eseguito sia con un passo fisso che con il backtracking.
+# - La traiettoria della ricerca è visualizzata su un grafico di contorno.
+
+# 4. Analisi dei Risultati:
+# I risultati del metodo del gradiente con passo fisso e backtracking sono
+# confrontati attraverso grafici delle norme del gradiente, del valore della
+# funzione e dell'errore rispetto alla soluzione vera.
