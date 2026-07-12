@@ -1,4 +1,4 @@
-# Dicee Challenge
+# Dice Challenge
 
 Esercizio front-end che simula il lancio di due dadi per una sfida a due giocatori, usando JavaScript vanilla per generare numeri casuali e manipolare il DOM.
 
