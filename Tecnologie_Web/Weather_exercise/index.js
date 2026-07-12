@@ -1,4 +1,4 @@
-/* const apiKey = "36810e00a822f28c19aa8db6e1ac4694"; //metti qui la tua chiave
+/* const apiKey = "LA_TUA_API_KEY" // sostituisci con la tua chiave di https://openweathermap.org/api
 const citySelect = document.getElementById("city-select");
 const weatherCards = document.getElementById("weather-cards"); //div to fill with weather cards
 const form = document.getElementById("city-form"); //form to get the city
@@ -34,7 +34,7 @@ form.addEventListener("submit", event => {
 }); */
 
 
-const apiKey = "36810e00a822f28c19aa8db6e1ac4694"
+const apiKey = "LA_TUA_API_KEY" // sostituisci con la tua chiave di https://openweathermap.org/api
 const citySelect = document.getElementById("city-select");
 const weatherCards = document.getElementById("weather-cards"); //div to fill with weather cards
 const form = document.getElementById("city-form"); //form to get the city
